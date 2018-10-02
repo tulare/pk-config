@@ -17,24 +17,6 @@ from .exceptions import ConfigurationError, ConfigurationKeyError
 
 # --------------------------------------------------------------------
 
-def project_real_path(relative_path) :
-    stack = inspect.stack()
-    
-    return os.path.realpath(
-        os.path.abspath(
-            os.path.join(
-                os.path.split(
-                    inspect.getfile(
-                        stack[-1][0]
-                    )
-                )[0],
-                relative_path
-            )
-        )
-    )
-
-# --------------------------------------------------------------------
-
 def project_path(caller) :
     try :
         script_path = os.path.realpath(__loader__.archive)
@@ -43,21 +25,16 @@ def project_path(caller) :
 
     prj_path = os.path.dirname(script_path)
 
-    return prj_path, script_path
+    return prj_path, os.path.basename(script_path)
         
-
-# --------------------------------------------------------------------
-
-PROJECT_PATH = project_real_path('.') 
-CONFIG_DEFAULT_DATABASE = PROJECT_PATH + '/config.db'
 
 # --------------------------------------------------------------------
 
 class Configuration(object) :
 
-    def __init__(self, database=CONFIG_DEFAULT_DATABASE) :
+    def __init__(self, db_path, db_name='config.db') :
 
-        self.database = database
+        self.database = db_path + '/' + db_name
 
         # creation table config si nécessaire
         with sqlite3.connect(self.database) as db :

@@ -35,13 +35,15 @@ def project_real_path(relative_path) :
 
 # --------------------------------------------------------------------
 
-def project_path() :
+def project_path(caller) :
     try :
-        prj_path = os.path.dirname(os.path.realpath(__loader__.archive))
+        script_path = os.path.realpath(__loader__.archive)
     except (NameError, AttributeError) :
-        prj_path = os.path.dirname(os.path.realpath(__file__))
+        script_path = os.path.realpath(caller)
 
-    return prj_path
+    prj_path = os.path.dirname(script_path)
+
+    return prj_path, script_path
         
 
 # --------------------------------------------------------------------

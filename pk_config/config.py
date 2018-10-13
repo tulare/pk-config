@@ -9,7 +9,8 @@ __all__ = [ 'Configuration' ]
 
 import os
 import sys
-import inspect
+import pathlib
+
 import sqlite3
 import json
 
@@ -17,58 +18,102 @@ from .exceptions import ConfigurationError, ConfigurationKeyError
 
 # --------------------------------------------------------------------
 
-def project_path(caller) :
+def project_database(locator, db_name=None) :
+    prj_path, prj_script = project_path(locator)
+
+    if db_name is None :
+        db_name = prj_path.parent.stem + '-config.db'
+
+    if prj_path.parent.is_file() :
+        prj_path = prj_path.parent
+
+    return prj_path.with_name(db_name)
+
+# --------------------------------------------------------------------
+
+def project_path(locator) :
     try :
-        script_path = os.path.realpath(__loader__.archive)
+        prj_path = pathlib.Path(__loader__.archive).absolute()
     except (NameError, AttributeError) :
-        script_path = os.path.realpath(caller)
+        prj_path = pathlib.Path(locator.__file__).absolute()
 
-    prj_path = os.path.dirname(script_path)
+    # basename
+    prj_script = prj_path.name
 
-    return prj_path, os.path.basename(script_path)
+    # python archives (ex: .pyz)
+    #if prj_path.parent.is_file() :
+    #    prj_path = prj_path.parent
+        
+    return prj_path, prj_script
         
 
 # --------------------------------------------------------------------
 
 class Configuration(object) :
 
-    def __init__(self, db_path, db_name='config.db') :
+    __shared_state = {}
 
-        self.database = db_path + '/' + db_name
+    def __new__(cls, *args, **kwargs) :
+        """ Implements Borg pattern (aka Monostate)
+        """
+        self = object.__new__(cls)
+        self.__dict__ = cls.__shared_state
+        return self
+
+    def __init__(self, db_name=':memory:') :
+
+        if not hasattr(self, '_database') :
+            self.database = db_name
+
+    @property
+    def database(self) :
+        return self._database
+
+    @database.setter
+    def database(self, db_name) :
+        self._database = str(db_name)
+        self.connection = sqlite3.connect(self._database)
+        self.cursor = self.connection.cursor()
 
         # creation table config si nécessaire
-        with sqlite3.connect(self.database) as db :
-            db.execute("""
-                CREATE TABLE IF NOT EXISTS config (
-                    key STRING PRIMARY KEY,
-                    value STRING NOT NULL
-                )
-            """)
-
-    @property        
+        self.cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS config (
+                key STRING PRIMARY KEY,
+                value STRING NOT NULL
+            )
+            """
+        )
+        
+    
+    @property
     def items(self) :
-        with sqlite3.connect(self.database) as db :
-            # select
-            cursor = db.execute("SELECT * FROM config")
-            return dict(cursor.fetchall())
+        # select
+        self.cursor.execute(
+            """
+            SELECT * FROM config
+            """
+        )
+        return dict(self.cursor.fetchall())
 
     @property
     def keys(self) :
         return set(self.items.keys())
 
     def get(self, key, default=None) :
-        with sqlite3.connect(self.database) as db :
-            cursor = db.execute(
-                "SELECT value FROM config WHERE key = ?",
-                (key,)
-            )
-            row = cursor.fetchone()
-            if row :
-                return row[0]            
-            else :
-                if default is None :
-                    raise ConfigurationKeyError(key)
-                return default
+        self.cursor.execute(
+            """
+            SELECT value FROM config WHERE key = ?
+            """,
+            (key,)
+        )
+        row = self.cursor.fetchone()
+        if row :
+            return row[0]            
+        else :
+            if default is None :
+                raise ConfigurationKeyError(key)
+            return default
 
     def get_json(self, key, default=None) :
         
@@ -79,24 +124,27 @@ class Configuration(object) :
             return default
 
     def add(self, key, value) :
-        with sqlite3.connect(self.database) as db :
-            try :
-                # insert
-                cursor = db.execute(
-                    "INSERT INTO config VALUES(? , ?)",
-                    (key, value)
-                )
-            except sqlite3.IntegrityError as e :
-                # update
-                cursor = db.execute(
-                    "UPDATE config SET value = ? WHERE key = ?",
-                    (value, key)
-                )
-            finally :
-                # commit
-                db.commit()
+        try :
+            # insert
+            self.cursor.execute(
+                """
+                INSERT INTO config VALUES(? , ?)
+                """,
+                (key, value)
+            )
+        except sqlite3.IntegrityError as e :
+            # update
+            self.cursor.execute(
+                """
+                UPDATE config SET value = ? WHERE key = ?
+                """,
+                (value, key)
+            )
+        finally :
+            # commit
+            self.connection.commit()
 
-            return cursor.rowcount
+        return self.cursor.rowcount
 
     def add_json(self, key, value) :
         
@@ -107,18 +155,19 @@ class Configuration(object) :
             return 0
         
     def delete(self, key) :
-        with sqlite3.connect(self.database) as db :
-            try :
-                # delete
-                cursor = db.execute(
-                    "DELETE FROM config WHERE key = ?",
-                    (key,)
-                )
-            finally :
-                # commit
-                db.commit()
+        try :
+            # delete
+            self.cursor.execute(
+                """
+                DELETE FROM config WHERE key = ?
+                """,
+                (key,)
+            )
+        finally :
+            # commit
+            self.connection.commit()
 
-            return cursor.rowcount
+        return self.cursor.rowcount
         
     def checklist(self, key_list) :
         missing = set(key_list).difference(self.keys)

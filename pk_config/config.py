@@ -19,15 +19,15 @@ from .exceptions import ConfigurationError, ConfigurationKeyError
 # --------------------------------------------------------------------
 
 def project_database(locator, db_name=None) :
-    prj_path, prj_script = project_path(locator)
+    prj_path = project_path(locator)
 
     if db_name is None :
-        db_name = prj_path.parent.stem + '-config.db'
+        db_name = prj_path.stem + '-config.db'
 
-    if prj_path.parent.is_file() :
+    if prj_path.is_file() :
         prj_path = prj_path.parent
 
-    return prj_path.with_name(db_name)
+    return prj_path.joinpath(db_name)
 
 # --------------------------------------------------------------------
 
@@ -37,14 +37,8 @@ def project_path(locator) :
     except (NameError, AttributeError) :
         prj_path = pathlib.Path(locator.__file__).absolute()
 
-    # basename
-    prj_script = prj_path.name
-
-    # python archives (ex: .pyz)
-    #if prj_path.parent.is_file() :
-    #    prj_path = prj_path.parent
-        
-    return prj_path, prj_script
+    # return dirname
+    return prj_path.parent
         
 
 # --------------------------------------------------------------------

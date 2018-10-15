@@ -2,15 +2,10 @@
 Configuration management for python projects
 
 ## usage
-first create an empty locator.py file in the project directory
 ```
-project
-  - locator.py
-```
-
-```
-import locator
+import __main__ as locator
 from pk_config import config
+
 prj_path = config.project_path(locator)
 
 # automatic database name : project-config.db

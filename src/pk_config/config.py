@@ -5,7 +5,7 @@ from __future__ import (
     unicode_literals
 )
 
-__all__ = [ 'Configuration' ]
+__all__ = [ 'project_database', 'project_path', 'Configuration' ]
 
 import os
 import sys

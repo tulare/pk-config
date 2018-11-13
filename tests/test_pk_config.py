@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 import unittest
-import pk_config
+from pk_config import config
 
 class Test_global(unittest.TestCase) :
 

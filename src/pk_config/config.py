@@ -73,8 +73,8 @@ class Configuration(object) :
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS config (
-                key STRING PRIMARY KEY,
-                value STRING NOT NULL
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
             )
             """
         )

@@ -1,5 +1,4 @@
-# -*- encoding: utf-8 -*-
-from __future__ import unicode_literals
+# -*- coding: utf-8 -*-
 
 __all__ = [
     'ConfigurationError', 'ConfigurationKeyError',

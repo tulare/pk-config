@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pk-config"
+authors = [
+  { name="Tulare Regnus", email="tulare.paxgalactica@gmail.com" },
+]
+description = "Configuration management for python projects"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pathlib; python_version<='2.7'"]
+keywords = ["python","utilities","configuration","database"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICEN[CS]E*"]
+dynamic = ["version"]
+
+[project.urls]
+Homepage = "https://github.com/tulare/pk-config"
+
+[tool.setuptools.dynamic]
+version = {attr = "pk_config.__version__"}

@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [ 'project_database', 'project_path', 'Configuration' ]
-
-import os
-import sys
 import pathlib
-
 import sqlite3
 import json
 
 from .exceptions import ConfigurationError, ConfigurationKeyError
+from ..patterns import Borg
+
+__all__ = [
+    'Configuration',
+    'project_database', 'project_path',
+]
 
 # --------------------------------------------------------------------
 
@@ -38,16 +39,9 @@ def project_path(locator) :
 
 # --------------------------------------------------------------------
 
-class Configuration(object) :
+class Configuration(Borg) :
 
-    __shared_state = {}
-
-    def __new__(cls, *args, **kwargs) :
-        """ Implements Borg pattern (aka Monostate)
-        """
-        self = object.__new__(cls)
-        self.__dict__ = cls.__shared_state
-        return self
+    __namespace__ = 'config'
 
     def __init__(self, db_name=':memory:') :
 

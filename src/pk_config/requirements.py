@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [ 'Requirements' ]
-
-import sys
-import os
+import sys, os
 import inspect
 
 from pkg_resources import (
@@ -12,6 +9,10 @@ from pkg_resources import (
     require, get_distribution,
     working_set
 )
+
+__all__ = [ 'Requirements' ]
+
+# ------------------------------------------------------------------------------
 
 class Requirements(object) :
 

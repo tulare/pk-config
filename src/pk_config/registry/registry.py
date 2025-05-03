@@ -1,12 +1,5 @@
 # -*- coding: utf-8 -*-
 
-__all__ = [
-    'HKEYS', 'REG_TYPES', 'REG_TYPES_ID',
-    'RegistryKeyOk', 'RegistryKeyError',
-    'RegistryValueError',
-    'Registry', 'RegValue',
-]
-
 import sys
 PY3 = sys.version_info > (3,)
 
@@ -20,10 +13,14 @@ else :
     # python 2.x
     import _winreg as winreg
 
-from .exceptions import (
-    RegistryKeyOk, RegistryKeyError,
-    RegistryValueError
-)
+from .exceptions import *
+
+__all__ = [
+    'HKEYS', 'REG_TYPES', 'REG_TYPES_ID',
+    'RegistryKeyOk', 'RegistryKeyError',
+    'RegistryValueError',
+    'Registry', 'RegValue',
+]
 
 # --------------------------------------------------------------------
 

@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# logging
 import logging
+logger = logging.getLogger(__name__)
+logger.debug(f'MODULE {__name__}')
+
 from abc import ABC, abstractmethod
 
 __all__ = [ 'AbstractFactory' ]
@@ -24,7 +28,7 @@ class AbstractFactory(ABC) :
 
 
     def __new__(cls, *args, **kwargs) :
-        logging.debug(f'__new__: cls: {cls}, args: {args}, kwargs: {kwargs}')
+        logger.debug(f'__new__: cls: {cls}, args: {args}, kwargs: {kwargs}')
 
         # recherche d'un candidat dans les sous-classes
         for sub in cls.subclasses() :
@@ -39,7 +43,7 @@ class AbstractFactory(ABC) :
 
 
     def __init__(self, *args, **kwargs) :
-        logging.debug(f'__init__: args: {args}, kwargs: {kwargs}')
+        logger.debug(f'__init__: args: {args}, kwargs: {kwargs}')
         
     @classmethod
     def get_id_classes(cls) :

@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+# logging
 import logging
+logger = logging.getLogger(__name__)
+logger.debug(f'MODULE {__name__}')
+
 from abc import ABC, abstractmethod
 
 __all__ = [ 'IObserver', 'IObservable', 'Observable' ]

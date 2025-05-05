@@ -1,5 +1,10 @@
 # -*- coding : utf-8 -*-
 
+# logging
+import logging
+logger = logging.getLogger(__name__)
+logger.debug(f'MODULE {__name__}')
+
 __all__ = [ 'singleton', 'Borg' ]
 
 # --------------------------------------------------------------------

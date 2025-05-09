@@ -5,6 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 logger.debug(f'MODULE {__name__}')
 
+import sys, os
 import pathlib
 import sqlite3
 import json
@@ -14,7 +15,7 @@ from ..patterns import Borg
 
 __all__ = [
     'Configuration',
-    'project_database', 'project_path',
+    'project_database', 'project_path', 'project_executable'
 ]
 
 # --------------------------------------------------------------------
@@ -41,6 +42,15 @@ def project_path(locator) :
     # return dirname
     return prj_path.parent
         
+
+# --------------------------------------------------------------------
+
+def project_executable(locator) :
+    prj_path = project_path(locator)
+    executable = pathlib.Path(
+        os.environ.get('_PYI_ARCHIVE_FILE', prj_path / sys.argv[0])
+    )
+    return executable
 
 # --------------------------------------------------------------------
 
